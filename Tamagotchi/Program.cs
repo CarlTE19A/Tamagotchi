@@ -7,6 +7,8 @@ namespace Tamagotchi
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Hello");
+            Console.ReadLine();
             bool looping = true;
             int activeTamagotchi = 0;
             List<TamagotchiClass> tamagotchis = new List<TamagotchiClass>();
@@ -21,18 +23,30 @@ namespace Tamagotchi
                     tamagotchi.Tick();
                     if(tamagotchi.GetAlive() == false)
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine(tamagotchi.name + " has passed away");
+                        Console.ForegroundColor = ConsoleColor.White;
                     }
                 }
-                if(tamagotchis[activeTamagotchi].GetAlive() == true)
+                tamagotchis.RemoveAll(t => t.GetAlive() == false);
+                try
                 {
-                    Talk();
+                    if(tamagotchis[activeTamagotchi].GetAlive() == true)
+                    {
+                        Talk();
+                    }
+                    else
+                    {
+                        Index();
+                    }
                 }
-                else
+                catch
                 {
-                    Index();
+                    System.Console.WriteLine("Oh oh that was dumb");
+                    looping = false;
                 }
             }
+            Console.ReadLine();
 
             void Talk()
             {
@@ -102,7 +116,57 @@ namespace Tamagotchi
                 {
                     Console.WriteLine(tamagotchi.name);
                 }
+                Console.WriteLine("Choose a Tamagotchi or get a 'new' one");
+                string text = Console.ReadLine();
+                while(text == "")
+                {
+                    if(tamagotchis.Count == 0)
+                    {
+                        Console.WriteLine("You dont seem intrested in getting a new Tamagotchi");
+                        looping = false;
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("That wasnt text, choose a Tamagotchi or get a 'new' one");
+                        text = Console.ReadLine();
+                    }
+                }
+                int theTamagotchi = -1;
+                foreach(TamagotchiClass t in tamagotchis)
+                {
+                    if(t.name == text)
+                    {
+                        theTamagotchi = t.id;
+                    }
+                }
+                if(text.ToLower() == "new")
+                {
+                    NewTamagotchi();
+                }
+                else if(theTamagotchi != -1)
+                {
+                    activeTamagotchi = theTamagotchi;
+                }
+                else if(tamagotchis.Count == 0)
+                {
+                    System.Console.WriteLine("You dont seem intrested in getting a new Tamagotchi");
+                    looping = false;
+                }
+                else
+                {
+                    System.Console.WriteLine("cant even write the name of your Tamagotchis");
+                    System.Console.WriteLine("LAZY!, no more play for you");
+                    looping = false;
+                }
             }
         }
     }
 }
+
+/*
+There is a problem where the active Tamagotchi is not the same as ID when a tamagotchi dies
+This means that when a tamagotchi dies every other tamagotchi moves down one step, this can mean that you get out of index
+This also mean a Tamagotchi cant be choosen after any dies as the ID no longer matches
+This could be solved if the id is reduced approprietly if a Tamagotchi dies
+*/
